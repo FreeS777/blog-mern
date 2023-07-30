@@ -7,10 +7,8 @@ import {
   loginValidation,
   postCreateValidation,
 } from "./validations.js";
-import * as UserController from "./controllers/UserController.js";
-import * as PostController from "./controllers/PostController.js";
-
-import checkAuth from "./utils/checkAuth.js";
+import { UserController, PostController } from "./controllers/index.js";
+import { checkAuth, handleValidationErrors } from "./utils/index.js";
 
 mongoose
   .connect("mongodb+srv://admin:qweasd@blogdb.j5fh80k.mongodb.net/blog")
@@ -33,8 +31,18 @@ const upload = multer({ storage });
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-app.post("/auth/login", loginValidation, UserController.login);
-app.post("/auth/register", registerValidation, UserController.register);
+app.post(
+  "/auth/login",
+  loginValidation,
+  handleValidationErrors,
+  UserController.login
+);
+app.post(
+  "/auth/register",
+  registerValidation,
+  handleValidationErrors,
+  UserController.register
+);
 app.get("/auth/profile", checkAuth, UserController.getProfile);
 
 app.post("/upload", checkAuth, upload.single("image"), (req, res) => {
@@ -43,11 +51,23 @@ app.post("/upload", checkAuth, upload.single("image"), (req, res) => {
   });
 });
 
-app.post("/posts", checkAuth, postCreateValidation, PostController.create);
+app.post(
+  "/posts",
+  checkAuth,
+  postCreateValidation,
+  handleValidationErrors,
+  PostController.create
+);
 app.get("/posts", PostController.getAllPosts);
 app.get("/posts/:id", PostController.getPostById);
 app.delete("/posts/:id", checkAuth, PostController.remove);
-app.patch("/posts/:id", checkAuth, PostController.update);
+app.patch(
+  "/posts/:id",
+  checkAuth,
+  postCreateValidation,
+  handleValidationErrors,
+  PostController.update
+);
 
 app.listen(4444, (err) => {
   if (err) {
