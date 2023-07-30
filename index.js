@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import multer from "multer";
+import dotenv from "dotenv";
 
 import {
   registerValidation,
@@ -10,8 +11,12 @@ import {
 import { UserController, PostController } from "./controllers/index.js";
 import { checkAuth, handleValidationErrors } from "./utils/index.js";
 
+dotenv.config();
+
+const dbConnection = process.env.DB_CONNECTION;
+
 mongoose
-  .connect("mongodb+srv://admin:qweasd@blogdb.j5fh80k.mongodb.net/blog")
+  .connect(dbConnection, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("DB connect OK"))
   .catch((err) => console.log("DB Error", err));
 
